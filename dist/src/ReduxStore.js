@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-var ReduxStore = (function () {
+var ReduxStore = /** @class */ (function () {
     function ReduxStore(_state, _reducer) {
         this.state = _state;
         this.reducer = _reducer;

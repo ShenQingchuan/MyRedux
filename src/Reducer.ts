@@ -1,6 +1,6 @@
 export interface ReducerAction {
   type: string,
-  other?: any,
+  mutation?: any,
 }
 
 export interface Reducer<T> {
