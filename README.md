@@ -47,3 +47,43 @@ const createStore = function (plan, initState) { ... }
 
 所以我的项目中：**并没有对之前那些错误传入的测试实现，我的 ReduxStore 必须传入 实现了 Reducer 接口的函数**
 
+#### 关于ReducerAction
+原文中说 action 为 object，但一定要有一个type属性，
+另外带各种与原 state 属性相关的字段
+如在 RunTest2() 中我展示了可以修改: `t2state` 的`student`中的`name`属性
+
+- 原文 JavaScript 实现是
+    ```javascript
+      /*修改 name*/
+      store.dispatch({
+        type: 'SET_NAME',
+        name: '前端九部2号'
+      });
+    ```
+  这里直接传入了name，而在 Typescript 的实现中，
+  如果要让某个类或是接口具备一个确定的、必须的属性，而还可以无限拓展属性，
+  这恐怕得 **继承了any类，并添加一个必要字段** 了... 然而这是不可能实现的
+  
+ - 所以我参照了 Vuex 的实现，给 ReducerAction 的定义是
+
+    ```typescript
+    export interface ReducerAction {
+      type: string,
+      mutation?: any,
+    }
+    ```
+   
+   在 mutation 处传入需要更改的数据，表示更改的操作。
+    
+   例如下面这样👇：
+   ```typescript
+    /*修改 name*/
+   t2store.dispatch({
+     type: 'SET_NAME',
+     mutation: {
+       name: '张二狗'
+     }
+   });
+   ```
+   
+   

@@ -7,8 +7,8 @@ export interface ReduxListener {
 
 export class ReduxStore<T> {
   private state: T;
-  private reducer: Reducer<T>;
-  private listeners: Array<ReduxListener>;
+  private readonly reducer: Reducer<T>;
+  private readonly listeners: Array<ReduxListener>;
   constructor (_state: T, _reducer?: Reducer<T>) {
     this.state = _state;
     this.reducer = _reducer;
