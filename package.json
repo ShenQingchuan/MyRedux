@@ -1,0 +1,21 @@
+{
+  "name": "redux-exp",
+  "version": "1.0.0",
+  "description": "hand-make a redux implementation.",
+  "main": "RunTestOne.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "node ./dist/test/RunTest.js"
+  },
+  "author": "ShenQingchuan",
+  "license": "MIT",
+  "dependencies": {
+    "typescript": "^3.6.3"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-clean": "^0.4.0",
+    "gulp-exec": "^4.0.0",
+    "gulp-typescript": "^5.0.1"
+  }
+}
