@@ -13,7 +13,7 @@ var __assign = (this && this.__assign) || function () {
 exports.__esModule = true;
 var ReduxStore_1 = require("../src/ReduxStore");
 var CombineReducers_1 = require("../src/CombineReducers");
-// 本测试用的测试类
+// 测试1用的测试类
 var Test1 = /** @class */ (function () {
     function Test1(_count) {
         this.count = _count;
@@ -38,7 +38,7 @@ function RunTest1() {
         }
     };
     /*把 reducer 函数交给 store*/
-    var t1store = new ReduxStore_1.ReduxStore(t1state, reducer);
+    var t1store = new ReduxStore_1.ReduxStore(reducer, t1state);
     t1store.subscribe(function () {
         var state = t1store.getState();
         console.log("\u8BA1\u6570\u5668\u5F53\u524Dstate.count\u4E3A: " + state.count);
@@ -104,7 +104,7 @@ function RunTest2() {
         student: studentReducer
     };
     var comReducer = CombineReducers_1.combineReducers(allReducers);
-    var t2store = new ReduxStore_1.ReduxStore(t2state, comReducer);
+    var t2store = new ReduxStore_1.ReduxStore(comReducer, t2state);
     t2store.subscribe(function () {
         var state = t2store.getState();
         console.log("\u73B0\u5728\u7684 state \u662F -> \n    count: " + state.counter.count + ", \n    name: " + state.student.name + ",\n    sicnuid: " + state.student.sicnuid);
@@ -123,8 +123,67 @@ function RunTest2() {
         }
     });
 }
+// 测试3
+function RunTest3() {
+    console.log('---- Test3.1 （state初始化、拆分与合并） ----');
+    // 初始化 count 这种 state 的策略
+    var initCount = {
+        count: 0
+    };
+    var counterReducer = function (state, action) {
+        /*注意：如果 state 没有初始值，那就给他初始值！！*/
+        if (!state) {
+            state = initCount;
+        }
+        switch (action.type) {
+            case 'INCREMENT':
+                return {
+                    count: state.count + 1
+                };
+            default:
+                return state;
+        }
+    };
+    var t3store = new ReduxStore_1.ReduxStore(counterReducer);
+    console.log("t3store \u7684 state: " + JSON.stringify(t3store.getState()));
+    /** ---------- demo6 Middleware 中间件 ---------- */
+    console.log('\n---- Test3.2 （Middleware 中间件） ----');
+    // 1. 取出原反射器
+    var t3next = t3store.dispatch;
+    // 2. 编写中间件
+    var loggerMiddleware = function (store) { return function (next) { return function (action) {
+        console.log('t3当前的 state: ', JSON.stringify(store.getState()));
+        console.log('传入的 action: ', JSON.stringify(action));
+        next(action);
+        console.log('t3更新后的 state: ', JSON.stringify(store.getState()));
+    }; }; };
+    var exceptionMiddleware = function (store) { return function (next) { return function (action) {
+        try {
+            next(action);
+        }
+        catch (error) {
+            console.log('错误报告: ', error);
+        }
+    }; }; };
+    var timerMiddleware = function (store) { return function (next) { return function (action) {
+        console.log('当前时间: ', new Date().toLocaleString());
+        next(action);
+    }; }; };
+    // 3. 注册中间件
+    var logger = loggerMiddleware(t3store);
+    var timer = timerMiddleware(t3store);
+    var exception = exceptionMiddleware(t3store);
+    // 4. 写回反射器
+    t3store.dispatch = exception(timer(logger(t3next)));
+    // 测试这 3 个中间件
+    t3store.dispatch({
+        type: 'INCREMENT'
+    });
+}
 // Run Those Tests:
-console.log('Test 1: 到原文: demo-2（带Reducer的状态修改）');
+console.log('\nTest 1: 到原文: demo-2（带Reducer的状态修改）');
 RunTest1();
-console.log('Test 2: 到原文: demo-3（多Reducer合并）');
+console.log('\nTest 2: 到原文: demo-3（多Reducer合并）');
 RunTest2();
+console.log('\nTest 3: 到原文: demo-4');
+RunTest3();

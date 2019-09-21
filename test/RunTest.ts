@@ -1,9 +1,9 @@
-import { Reducer } from './../src/reducer';
-import { ReduxStore } from '../src/ReduxStore';
+import { Reducer } from '../src/Reducer';
+import { ReduxStore, ReduxMiddlewareType } from '../src/ReduxStore';
 import { combineReducers } from '../src/CombineReducers';
 
 
-// 本测试用的测试类
+// 测试 1 用的测试类
 class Test1 {
   count: number;
   constructor(_count: number) {
@@ -36,7 +36,7 @@ function RunTest1() {
   };
 
   /*把 reducer 函数交给 store*/
-  let t1store = new ReduxStore(t1state, reducer);
+  let t1store = new ReduxStore(reducer, t1state);
   t1store.subscribe(() => {  
     let state = t1store.getState();  
     console.log(`计数器当前state.count为: ${state.count}`);
@@ -61,6 +61,7 @@ function RunTest1() {
   */
 }
 
+// 测试 2 用的测试类、接口
 interface CounterType { 
   count: number 
 }
@@ -119,7 +120,7 @@ function RunTest2() {
   };
 
   const comReducer = combineReducers<Test2>(allReducers);
-  let t2store = new ReduxStore<Test2>(t2state, comReducer);
+  let t2store = new ReduxStore<Test2>(comReducer, t2state);
   t2store.subscribe(() => {
     let state = t2store.getState();
     console.log(`现在的 state 是 -> 
@@ -143,10 +144,75 @@ function RunTest2() {
   });
 }
 
+// 测试 3
+function RunTest3() {
+  console.log('---- Test3.1 （state初始化、拆分与合并） ----')
+  // 初始化 count 这种 state 的策略
+  let initCount = {
+    count: 0
+  };
+  let counterReducer: Reducer<typeof initCount> = (state, action) => {
+    /*注意：如果 state 没有初始值，那就给他初始值！！*/  
+    if (!state) {
+      state = initCount;
+    }
+    switch (action.type) {
+      case 'INCREMENT':
+        return {
+          count: state.count + 1
+        }
+      default:
+        return state;
+    }
+  }
+  const t3store = new ReduxStore<typeof initCount>(counterReducer);
+  console.log(`t3store 的 state: ${JSON.stringify(t3store.getState())}`);
+
+  /** ---------- demo6 Middleware 中间件 ---------- */
+  console.log('\n---- Test3.2 （Middleware 中间件） ----')
+  // 1. 取出原反射器
+  const t3next = t3store.dispatch;
+
+  // 2. 编写中间件
+  const loggerMiddleware: ReduxMiddlewareType = (store) => (next) => (action) => {
+    console.log('t3当前的 state: ', JSON.stringify(store.getState()));
+    console.log('传入的 action: ', JSON.stringify(action));
+    next(action);
+    console.log('t3更新后的 state: ', JSON.stringify(store.getState()));
+  }
+  const exceptionMiddleware: ReduxMiddlewareType = (store) => (next) => (action) => {
+    try {
+      next(action);
+    } catch (error) {
+      console.log('错误报告: ', error);
+    }
+  }
+  const timerMiddleware: ReduxMiddlewareType = (store) => (next) => (action) => {
+    console.log('当前时间: ', new Date().toLocaleString());
+    next(action);
+  }
+
+  // 3. 注册中间件
+  const logger = loggerMiddleware(t3store);
+  const timer = timerMiddleware(t3store);
+  const exception = exceptionMiddleware(t3store);
+
+  // 4. 写回反射器
+  t3store.dispatch = exception(timer(logger(t3next)));
+
+  // 测试这 3 个中间件
+  t3store.dispatch({
+    type: 'INCREMENT'
+  });
+}
+
 
 // Run Those Tests:
-console.log('Test 1: 到原文: demo-2（带Reducer的状态修改）')
+console.log('\nTest 1: 到原文: demo-2（带Reducer的状态修改）')
 RunTest1();
 
-console.log('Test 2: 到原文: demo-3（多Reducer合并）')
+console.log('\nTest 2: 到原文: demo-3（多Reducer合并）')
 RunTest2();
+
+console.log('\nTest 3: 到原文: demo-4')
+RunTest3();

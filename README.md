@@ -74,7 +74,7 @@ const createStore = function (plan, initState) { ... }
     ```
    
    在 mutation 处传入需要更改的数据，表示更改的操作。
-    
+   
    例如下面这样👇：
    ```typescript
     /*修改 name*/
