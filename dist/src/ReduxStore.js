@@ -48,7 +48,13 @@ var ReduxStore = /** @class */ (function () {
         this.dispatch({ type: '' });
     }
     ReduxStore.prototype.subscribe = function (listener) {
+        var _this = this;
         this.listeners.push(listener);
+        // 返回退订方法
+        return function () {
+            var index = _this.listeners.indexOf(listener);
+            _this.listeners.splice(index, 1);
+        };
     };
     ReduxStore.prototype.getState = function () {
         return this.state;

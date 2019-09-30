@@ -60,6 +60,11 @@ export class ReduxStore<T> {
   
   subscribe(listener: ReduxListener) {
     this.listeners.push(listener);
+    // 返回退订方法
+    return () => {
+      const index = this.listeners.indexOf(listener);
+      this.listeners.splice(index, 1);
+    }
   }
   getState() {
     return this.state;

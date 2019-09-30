@@ -255,6 +255,37 @@ function RunTest4() {
   });
 }
 
+// 测试 5 - 专测 unsubscribe 方法
+function RunTest5() {
+  let initCountState = {
+    count: 0
+  };
+  let counterReducer: Reducer<typeof initCountState> = (state, action) => {
+    /*注意：如果 state 没有初始值，那就给他初始值！！*/
+    if (!state) {
+      state = initCountState;
+    }
+    switch (action.type) {
+      case 'INCREMENT':
+        return {
+          count: state.count + 1
+        };
+      default:
+        return state;
+    }
+  };
+  let t5store = new ReduxStore<typeof initCountState>(counterReducer);
+  const countUnsubscribe = t5store.subscribe(() => {
+    let state = t5store.getState();
+    console.log(`listener print: 计数器当前state.count为: ${state.count}`);
+  });
+  countUnsubscribe();
+  t5store.dispatch({
+    type: "INCREMENT"
+  });
+  // 应该不会打印 listener print
+  console.log(`final print: 计数器当前state.count为: ${t5store.getState().count}`);
+}
 
 // Run Those Tests:
 console.log('\nTest 1: 到原文: demo-2（带Reducer的状态修改）')
@@ -268,3 +299,6 @@ RunTest3();
 
 console.log('\n---- Test 4: applyMiddleware 方法测试');
 RunTest4();
+
+console.log('\n---- Test 5: unsubscribe 测试');
+RunTest5();
