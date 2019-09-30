@@ -11,13 +11,39 @@ export class ReduxStore<T> {
   private readonly reducer: Reducer<T>;
   private readonly listeners: Array<ReduxListener>;
 
+  // demo6 中间件，由于我们会修改 dispatch 方法，
+  // 所以可以将其变成一个公有、可改的成员变量
+  public dispatch: ReduxDispatchType = (action: ReducerAction) => {
+    this.state = this.reducer(this.state, action);
+
+    // 通知所有订阅者
+    for (let i = 0; i < this.listeners.length; i++) {      
+      const listener = this.listeners[i];      
+      listener();
+    } 
+  };
+
+  // 优化中间件使用方式
+  public applyMiddleware = (...middlewares: ReduxMiddlewareType[]) => {
+    // 给每一个 middleware 传入本 store 对象
+    const chain = middlewares.map(middleware => middleware(this));
+    // 取出旧的 dispatch
+    let oldDispatch = this.dispatch;
+    // 实现中间件注册到 dispatch 上
+    chain.reverse().map(middleware => {
+      oldDispatch = middleware(oldDispatch);
+    });
+    // 重写 dispatch
+    this.dispatch = oldDispatch;
+  };
+
   /**
    * demo-4 => 由于 可以给 state传入默认值，
    * 则state反而变成了可选参数，而传入的 Reducer 中
    * 一定要有 赋予 state 默认值的策略
    */
-  constructor (_reducer: Reducer<T>, _state?: T) {
-    this.state = _state;
+  constructor (_reducer: Reducer<T>, _init_state?: T) {
+    this.state = _init_state;
     this.reducer = _reducer;
     this.listeners = [];
 
@@ -31,15 +57,6 @@ export class ReduxStore<T> {
     this.dispatch({type: ''})
   }
 
-  // demo6 中间件，由于我们会修改 dispatch 方法，
-  // 所以可以将其变成一个公有、可改的成员变量
-  public dispatch: ReduxDispatchType = (action: ReducerAction) => {
-    this.state = this.reducer(this.state, action);
-    for (let i = 0; i < this.listeners.length; i++) {      
-      const listener = this.listeners[i];      
-      listener();
-    } 
-  }
   
   subscribe(listener: ReduxListener) {
     this.listeners.push(listener);

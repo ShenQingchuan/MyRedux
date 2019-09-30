@@ -146,26 +146,26 @@ function RunTest2() {
 
 // 测试 3
 function RunTest3() {
-  console.log('---- Test3.1 （state初始化、拆分与合并） ----')
-  // 初始化 count 这种 state 的策略
-  let initCount = {
+  console.log('---- Test3.1 （state初始化、拆分与合并） ----');
+  // 初始化 state
+  let initCountState = {
     count: 0
   };
-  let counterReducer: Reducer<typeof initCount> = (state, action) => {
+  let counterReducer: Reducer<typeof initCountState> = (state, action) => {
     /*注意：如果 state 没有初始值，那就给他初始值！！*/  
     if (!state) {
-      state = initCount;
+      state = initCountState;
     }
     switch (action.type) {
       case 'INCREMENT':
         return {
           count: state.count + 1
-        }
+        };
       default:
         return state;
     }
-  }
-  const t3store = new ReduxStore<typeof initCount>(counterReducer);
+  };
+  let t3store = new ReduxStore<typeof initCountState>(counterReducer);
   console.log(`t3store 的 state: ${JSON.stringify(t3store.getState())}`);
 
   /** ---------- demo6 Middleware 中间件 ---------- */
@@ -186,11 +186,11 @@ function RunTest3() {
     } catch (error) {
       console.log('错误报告: ', error);
     }
-  }
+  };
   const timerMiddleware: ReduxMiddlewareType = (store) => (next) => (action) => {
     console.log('当前时间: ', new Date().toLocaleString());
     next(action);
-  }
+  };
 
   // 3. 创建中间件实例
   const logger = loggerMiddleware(t3store);
@@ -206,6 +206,55 @@ function RunTest3() {
   });
 }
 
+// 测试 4 - 专测 应用中间件 的 applyMiddleware 方法
+function RunTest4() {
+  // 初始化 count 这种 state 的策略
+  let initCountState = {
+    count: 0
+  };
+  let counterReducer: Reducer<typeof initCountState> = (state, action) => {
+    /*注意：如果 state 没有初始值，那就给他初始值！！*/  
+    if (!state) {
+      state = initCountState;
+    }
+    switch (action.type) {
+      case 'INCREMENT':
+        return {
+          count: state.count + 1
+        };
+      default:
+        return state;
+    }
+  };
+  let t4store = new ReduxStore<typeof initCountState>(counterReducer);
+  console.log(`t4store 的 初始 state: ${JSON.stringify(t4store.getState())}`);
+  
+  // 编写中间件
+  const loggerMiddleware: ReduxMiddlewareType = (store) => (next) => (action) => {
+    console.log('t4当前的 state: ', JSON.stringify(store.getState()));
+    console.log('传入的 action: ', JSON.stringify(action));
+    next(action);
+    console.log('t4更新后的 state: ', JSON.stringify(store.getState()));
+  };
+  const exceptionMiddleware: ReduxMiddlewareType = (store) => (next) => (action) => {
+    try {
+      next(action);
+    } catch (error) {
+      console.log('错误报告: ', error);
+    }
+  };
+  const timerMiddleware: ReduxMiddlewareType = (store) => (next) => (action) => {
+    console.log('当前时间: ', new Date().toLocaleString());
+    next(action);
+  };
+
+  t4store.applyMiddleware(exceptionMiddleware, timerMiddleware, loggerMiddleware);
+  // 测试这 3 个中间件
+  t4store.dispatch({
+    type: 'INCREMENT'
+  });
+}
+
 
 // Run Those Tests:
 console.log('\nTest 1: 到原文: demo-2（带Reducer的状态修改）')
@@ -216,3 +265,6 @@ RunTest2();
 
 console.log('\nTest 3: 到原文: demo-4')
 RunTest3();
+
+console.log('\n---- Test 4: applyMiddleware 方法测试');
+RunTest4();
