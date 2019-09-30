@@ -7,6 +7,20 @@
 > - **掘金：**（代码格式似乎出了Bug不太好看） https://juejin.im/entry/5d802a09e51d4561c541a763
 > - **微信公众号原文：**（代码格式完整）https://mp.weixin.qq.com/s/idWmfUbPVVqK7Yi0_9NC4A
 
+## 运行项目
+
+```bash
+# 克隆本仓库
+git clone https://gitea.sicnurpz.online/ShenQIngchuan/HandMake-Redux.git ReduxExp
+
+# 安装依赖
+yarn 或 npm install
+
+# 进入项目目录用 gulp 完成 typescript 编译并开始运行测试
+cd ReduxExp
+gulp
+```
+
 ## 项目结构
 
 ```bash
@@ -28,7 +42,7 @@
 └── yarn.lock
 ```
 
-### 针对原版的一些改动：
+### 针对原版的一些改动和需要说明的：
 
 由于原教程带着读者一起从头实现，所以先展示了通过 **`state.changeState()`** 来随意更改 `store` 中的 `state` 数据值，甚至本来原数据是 `number` 类型，却可以被改为 `string` 类型。
 
@@ -86,4 +100,21 @@ const createStore = function (plan, initState) { ... }
    });
    ```
    
-   
+#### 关于中间件Middleware
+
+我给 Middleware 定义的接口类型说明如下，因为有此所以最后使用方式与原版教程几乎无异。
+
+原文中有些细节未展开说明，如：中间件应该是一个 **以某个ReduxStore为参数（因为可能中间件执行时需要读取 state 状态）**，
+并 **返回一个函数，该函数接收一个ReduxDispatch、且返回一个ReduxDispatch**。
+
+```typescript
+export interface ReduxMiddlewareType {
+  (store: ReduxStore<any>): (next: ReduxDispatchType) => ReduxDispatchType
+}
+```
+
+demo-6部分，未优化中间件使用方式的部分，
+请看我的代码中 **`/test/RunTest.ts`** 中 
+**`RunTest3()`** 部分中的 **`line:173~201`**
+
+

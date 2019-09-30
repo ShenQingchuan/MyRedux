@@ -13,7 +13,7 @@ var __assign = (this && this.__assign) || function () {
 exports.__esModule = true;
 var ReduxStore_1 = require("../src/ReduxStore");
 var CombineReducers_1 = require("../src/CombineReducers");
-// 测试1用的测试类
+// 测试 1 用的测试类
 var Test1 = /** @class */ (function () {
     function Test1(_count) {
         this.count = _count;
@@ -123,7 +123,7 @@ function RunTest2() {
         }
     });
 }
-// 测试3
+// 测试 3
 function RunTest3() {
     console.log('---- Test3.1 （state初始化、拆分与合并） ----');
     // 初始化 count 这种 state 的策略

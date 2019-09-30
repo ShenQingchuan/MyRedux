@@ -192,7 +192,7 @@ function RunTest3() {
     next(action);
   }
 
-  // 3. 注册中间件
+  // 3. 创建中间件实例
   const logger = loggerMiddleware(t3store);
   const timer = timerMiddleware(t3store);
   const exception = exceptionMiddleware(t3store);
