@@ -24,21 +24,22 @@ gulp
 ## 项目结构
 
 ```bash
-├── dist											# Typescript编译打包后的目录
+├── dist					    # Typescript编译打包后的目录
 │   ├── src
-│   │   ├── Reducer.js
-│   │   └── ReduxStore.js
+│   │   ├── CombineReducer.js   # 导出: 状态变更策略合并方法
+│   │   ├── Reducer.js          # 导出: 状态变更策略类
+│   │   └── ReduxStore.js       # 导出: 状态仓库类
 │   └── test
 │       └── RunTest.js
-├── gulpfile.js								# gulp 自动化打包的配置
-├── package.json							# npm/yarn 依赖管理
-├── src												# 项目源码文件夹
-│   ├── Reducer.ts						# Reducer（即 changeState）
-│   └── ReduxStore.ts					# ReduxStore 类的实现
+├── gulpfile.js				    # gulp 自动化打包的配置
+├── package.json			    # npm/yarn 依赖管理
+├── src					        # 项目源码文件夹
+│   ├── Reducer.ts			    # Reducer（即 changeState）
+│   └── ReduxStore.ts		    # ReduxStore 类的实现
 ├── test						
-│   └── RunTest.ts						# 测试样例
-├── README.md	
-├── tsconfig.json							# Typescript 环境配置
+│   └── RunTest.ts			    # 测试样例
+├── README.md	                # 本项目说明文档
+├── tsconfig.json			    # Typescript 环境配置
 └── yarn.lock
 ```
 
